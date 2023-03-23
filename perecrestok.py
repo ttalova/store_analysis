@@ -7,15 +7,14 @@ import httplib2
 import apiclient
 from oauth2client.service_account import ServiceAccountCredentials
 
-CREDENTIALS_FILE = 'perekrestok-355612-c97ad2d95599.json'  # Имя файла с закрытым ключом, вы должны подставить свое
+CREDENTIALS_FILE = 'perekrestok-355612-c97ad2d95599.json'
 
-# Читаем ключи из файла
 credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE,
                                                                ['https://www.googleapis.com/auth/spreadsheets',
                                                                 'https://www.googleapis.com/auth/drive'])
 
-httpAuth = credentials.authorize(httplib2.Http())  # Авторизуемся в системе
-service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)  # Выбираем работу с таблицами и 4 версию API
+httpAuth = credentials.authorize(httplib2.Http())
+service = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
 
 spreadsheet = service.spreadsheets().create(body={
     'properties': {'title': 'Перекресток', 'locale': 'ru_RU'},
@@ -24,14 +23,8 @@ spreadsheet = service.spreadsheets().create(body={
                                'title': 'Цены на товары по категориям',
                                'gridProperties': {'rowCount': 1000000, 'columnCount': 10}}}]
 }).execute()
-spreadsheetId = '1ucSYtPRQlnbx6ZVOFicbpzru6GbYzRdEvjv8_Jt-FdI'  # сохраняем идентификатор файла
+spreadsheetId = '1ucSYtPRQlnbx6ZVOFicbpzru6GbYzRdEvjv8_Jt-FdI'
 print('https://docs.google.com/spreadsheets/d/' + spreadsheetId)
-# driveService = apiclient.discovery.build('drive', 'v3', http = httpAuth) # Выбираем работу с Google Drive и 3 версию API
-# access = driveService.permissions().create(
-#     fileId = spreadsheetId,
-#     body = {'type': 'user', 'role': 'writer', 'emailAddress': 'talova0304@gmail.com'},  # Открываем доступ на редактирование
-#     fields = 'id'
-# ).execute()
 ua = UserAgent()
 headers = {'User-Agent': ua.opera}
 webside = 'https://www.perekrestok.ru/cat'
@@ -85,12 +78,11 @@ for name, elem in zip(list_of_category_names, list_of_categories_links):
         count = 0
 
 results = service.spreadsheets().values().batchUpdate(spreadsheetId=spreadsheetId, body={
-    "valueInputOption": "USER_ENTERED",  # Данные воспринимаются, как вводимые пользователем (считается значение формул)
+    "valueInputOption": "USER_ENTERED",
     "data": [
         {"range": f"A1:C{len(list_of_name_products)}",
-         "majorDimension": "COLUMNS",  # Сначала заполнять строки, затем столбцы
+         "majorDimension": "COLUMNS",
          "values": [list_of_name_of_categories, list_of_name_products, list_of_price_of_products
-                    # Заполняем вторую строку
                     ]}
     ]
 }).execute()
